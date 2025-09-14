@@ -38,7 +38,7 @@ defineProps<Props>();
             <h2
                 class="text-xl font-semibold leading-tight text-gray-800"
             >
-                Dashboard
+                Welcome back!
             </h2>
         </template>
 
@@ -46,7 +46,6 @@ defineProps<Props>();
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <!-- Welcome Section -->
                 <div class="mb-8">
-                    <h1 class="text-3xl font-bold text-gray-900 mb-2">Welcome back!</h1>
                     <p class="text-gray-600">Here's what's happening with your tasks today.</p>
                 </div>
 

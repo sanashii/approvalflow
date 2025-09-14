@@ -22,29 +22,20 @@ const showingNavigationDropdown = ref(false);
                 <!-- Primary Navigation Menu -->
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div class="flex h-16 justify-between">
-                        <div class="flex">
-                            <!-- Logo -->
-                            <div class="flex shrink-0 items-center">
-                                <Link :href="route('dashboard')">
-                                    <ApplicationLogo
-                                        class="block h-9 w-auto fill-current text-gray-800"
-                                    />
-                                </Link>
-                            </div>
-
+                        <div class="flex items-center gap-8">
                             <!-- Navigation Links -->
-                            <div
-                                class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex"
-                            >
+                            <div class="hidden sm:flex items-center gap-6 ms-12">
                                 <NavLink
                                     :href="route('dashboard')"
                                     :active="route().current('dashboard')"
+                                    class="px-4 py-2 rounded-lg hover:bg-indigo-50 transition font-semibold text-gray-700"
                                 >
                                     Dashboard
                                 </NavLink>
                                 <NavLink
                                     :href="route('tasks.index')"
                                     :active="route().current('tasks.*')"
+                                    class="px-4 py-2 rounded-lg hover:bg-indigo-50 transition font-semibold text-gray-700"
                                 >
                                     Tasks
                                 </NavLink>
