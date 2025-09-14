@@ -45,14 +45,13 @@ defineProps<Props>();
         <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-8">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <!-- Welcome Section -->
-                <div class="mb-8">
+                <div class="mt-4">
                     <p class="text-gray-600">Here's what's happening with your tasks today.</p>
                 </div>
 
-                <!-- Task Statistics -->
-                <div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                    <!-- Total Tasks Card -->
-                    <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100">
+                <!-- Task Statistics (Flexbox 2x2) -->
+                <div class="flex flex-wrap gap-6 mt-4 mb-8">
+                    <div class="w-full sm:w-[calc(50%-12px)] bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-600 mb-1">Total Tasks</p>
@@ -65,9 +64,7 @@ defineProps<Props>();
                             </div>
                         </div>
                     </div>
-
-                    <!-- Pending Tasks Card -->
-                    <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100">
+                    <div class="w-full sm:w-[calc(50%-12px)] bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-600 mb-1">Pending</p>
@@ -80,9 +77,7 @@ defineProps<Props>();
                             </div>
                         </div>
                     </div>
-
-                    <!-- In Progress Tasks Card -->
-                    <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100">
+                    <div class="w-full sm:w-[calc(50%-12px)] bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-600 mb-1">In Progress</p>
@@ -95,9 +90,7 @@ defineProps<Props>();
                             </div>
                         </div>
                     </div>
-
-                    <!-- Completed Tasks Card -->
-                    <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100">
+                    <div class="w-full sm:w-[calc(50%-12px)] bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-gray-600 mb-1">Completed</p>
@@ -113,11 +106,12 @@ defineProps<Props>();
                 </div>
 
                 <!-- Recent Tasks -->
-                <div class="mb-8">
+                <hr class="my-4 border-gray-200" />
+                <div class="mb-8 mt-4">
                     <div class="flex items-center justify-between mb-6">
                         <div>
                             <h3 class="text-2xl font-bold text-gray-900">Recent Tasks</h3>
-                            <p class="text-gray-600 mt-1">Your latest task updates</p>
+                            <p class="text-gray-600 mt-1 mb-2">Your latest task updates</p>
                         </div>
                         <Link
                             :href="route('tasks.index')"
@@ -133,11 +127,6 @@ defineProps<Props>();
                     <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
                         <div class="p-6">
                             <div v-if="recentTasks.length === 0" class="text-center py-12">
-                                <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                                    </svg>
-                                </div>
                                 <h4 class="text-lg font-medium text-gray-900 mb-2">No tasks yet</h4>
                                 <p class="text-gray-500 mb-4">Get started by creating your first task</p>
                                 <Link :href="route('tasks.index')" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">

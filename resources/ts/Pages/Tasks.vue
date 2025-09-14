@@ -98,26 +98,26 @@ const updateStatus = (taskId: number, status: 'Pending' | 'In Progress' | 'Compl
 const getPriorityColor = (priority: string) => {
     switch (priority) {
         case 'Low':
-            return 'bg-gray-100 text-gray-800';
+            return 'bg-yellow-100 text-yellow-800 border-yellow-200';
         case 'Normal':
-            return 'bg-blue-100 text-blue-800';
+            return 'bg-orange-100 text-orange-800 border-orange-200';
         case 'High':
-            return 'bg-red-100 text-red-800';
+            return 'bg-red-100 text-red-800 border-red-200';
         default:
-            return 'bg-gray-100 text-gray-800';
+            return 'bg-gray-100 text-gray-800 border-gray-200';
     }
 };
 
 const getStatusColor = (status: string) => {
     switch (status) {
         case 'Pending':
-            return 'bg-yellow-100 text-yellow-800';
+            return 'bg-blue-100 text-blue-800 border-blue-200';
         case 'In Progress':
-            return 'bg-orange-100 text-orange-800';
+            return 'bg-yellow-100 text-yellow-800 border-yellow-200';
         case 'Completed':
-            return 'bg-green-100 text-green-800';
+            return 'bg-green-100 text-green-800 border-green-200';
         default:
-            return 'bg-gray-100 text-gray-800';
+            return 'bg-gray-100 text-gray-800 border-gray-200';
     }
 };
 
@@ -146,6 +146,15 @@ const closeAutomationModal = () => {
 </script>
 
 <template>
+    <!-- Force Tailwind to generate all needed color classes for dynamic tags -->
+    <div class="hidden">
+        <span class="bg-yellow-100 text-yellow-800 border-yellow-200"></span>
+        <span class="bg-orange-100 text-orange-800 border-orange-200"></span>
+        <span class="bg-red-100 text-red-800 border-red-200"></span>
+        <span class="bg-blue-100 text-blue-800 border-blue-200"></span>
+        <span class="bg-green-100 text-green-800 border-green-200"></span>
+        <span class="bg-gray-100 text-gray-800 border-gray-200"></span>
+    </div>
     <Head title="Tasks" />
 
     <AuthenticatedLayout>
@@ -173,8 +182,18 @@ const closeAutomationModal = () => {
             </div>
         </template>
 
+
         <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-8">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <!-- Automation Success Modal (inline, below nav bar) -->
+                <div v-if="showAutomationModal" class="mb-8">
+                    <AutomationSuccessModal 
+                        :show="showAutomationModal" 
+                        :stats="automationStats"
+                        @close="closeAutomationModal"
+                    />
+                </div>
+
                 <!-- Create Task Form -->
                 <div v-if="showCreateForm" class="mb-8">
                     <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
@@ -196,7 +215,7 @@ const closeAutomationModal = () => {
                                     />
                                     <InputError class="mt-2" :message="createForm.errors.title" />
                                 </div>
-
+                                
                                 <div>
                                     <InputLabel for="description" value="Description" />
                                     <textarea
@@ -259,8 +278,8 @@ const closeAutomationModal = () => {
                 </div>
 
                 <!-- Tasks List -->
-                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-                    <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden mt-6">
+                    <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200 mt-4">
                         <h3 class="text-xl font-bold text-gray-900">Your Tasks</h3>
                         <p class="text-gray-600 mt-1">Manage and track your workflow</p>
                     </div>
@@ -282,7 +301,7 @@ const closeAutomationModal = () => {
                             >
                                 <div v-if="editingTask?.id === task.id" class="space-y-4">
                                     <!-- Edit Form -->
-                                    <h4 class="text-lg font-medium text-gray-900">Edit Task</h4>
+                                    <h4 class="text-lg font-medium text-gray-900 mb-2">Edit Task</h4>
                                     <form @submit.prevent="submitEdit" class="space-y-4">
                                         <div>
                                             <InputLabel for="edit-title" value="Title" />
@@ -337,7 +356,7 @@ const closeAutomationModal = () => {
                                             </div>
                                         </div>
 
-                                        <div class="flex items-center justify-end space-x-4">
+                                        <div class="flex items-center justify-end space-x-4 mt-6">
                                             <button
                                                 type="button"
                                                 @click="cancelEdit"
@@ -359,14 +378,12 @@ const closeAutomationModal = () => {
                                             <p v-if="task.description" class="text-gray-600 mb-4 line-clamp-2">{{ task.description }}</p>
                                             <div class="flex items-center space-x-4">
                                                 <span
-                                                    :class="getStatusColor(task.status)"
-                                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border"
+                                                    :class="'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ' + getStatusColor(task.status)"
                                                 >
                                                     {{ task.status }}
                                                 </span>
                                                 <span
-                                                    :class="getPriorityColor(task.priority)"
-                                                    class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border"
+                                                    :class="'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ' + getPriorityColor(task.priority)"
                                                 >
                                                     {{ task.priority }}
                                                 </span>
@@ -381,6 +398,7 @@ const closeAutomationModal = () => {
                                                 :value="task.status"
                                                 @change="updateStatus(task.id, ($event.target as HTMLSelectElement).value as 'Pending' | 'In Progress' | 'Completed')"
                                                 class="text-sm border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg shadow-sm px-3 py-2"
+                                                style="width: 9rem;"
                                             >
                                                 <option value="Pending">Pending</option>
                                                 <option value="In Progress">In Progress</option>
@@ -416,11 +434,12 @@ const closeAutomationModal = () => {
             </div>
         </div>
 
-        <!-- Automation Success Modal -->
-        <AutomationSuccessModal 
-            :show="showAutomationModal" 
-            :stats="automationStats"
-            @close="closeAutomationModal"
-        />
-    </AuthenticatedLayout>
+        </AuthenticatedLayout>
+
+    <!-- Automation Success Modal (global overlay) -->
+    <AutomationSuccessModal 
+        :show="showAutomationModal" 
+        :stats="automationStats"
+        @close="closeAutomationModal"
+    />
 </template>
