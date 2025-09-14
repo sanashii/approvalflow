@@ -39,8 +39,8 @@ const submit = () => {
         </div>
 
         <form @submit.prevent="submit">
-            <div>   
-                <div class="col-span-4 col-start-2 p-6 rounded-lg" style="background-color: #f0f9ff;">
+            <div class="flex flex-col items-center justify-center min-h-screen" style="margin-top: 10%;">   
+                <div class="p-6 rounded-lg max-w-screen" style="background-color: #f0f9ff; width: 50%;">
                     <div>
                         <h1 class="text-2xl font-bold py-3">Login</h1>
                         <InputLabel for="email" value="Email" />
@@ -82,7 +82,8 @@ const submit = () => {
                         </label>
                     </div>
 
-                    <div class="mt-4 align-items-center justify-center">
+                    <div class="mt-4 flex flex-col items-center justify-center">
+                        <br></br>
                         <PrimaryButton
                             class="ms-4"
                             :style="{ backgroundColor: '#007bff', color: 'white' }"
@@ -95,11 +96,10 @@ const submit = () => {
                         <Link
                             v-if="canResetPassword"
                             :href="route('password.request')"
-                            class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                            class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 mb-2"
                         >
                             Forgot your password?
                         </Link>
-                        <br></br>
                         <Link
                             :href="route('register')"
                             class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
