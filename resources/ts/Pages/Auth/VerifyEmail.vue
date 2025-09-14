@@ -4,6 +4,8 @@ import GuestLayout from '@/Layouts/GuestLayout.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
+const route = (window as any).route;
+
 const props = defineProps<{
     status?: string;
 }>();
