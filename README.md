@@ -250,5 +250,3 @@ php artisan view:clear
 This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
 ---
-
-**Built with ❤️ and spite using Laravel, Vue.js, and modern web technologies.**
