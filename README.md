@@ -86,7 +86,7 @@ approvalflow/
 
 1. **Clone and setup the project:**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/sanashii/approvalflow
    cd approvalflow
    composer install
    npm install --legacy-peer-deps
@@ -249,14 +249,6 @@ php artisan view:clear
 
 This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
 ---
 
-**Built with ❤️ using Laravel, Vue.js, and modern web technologies.**
+**Built with ❤️ and spite using Laravel, Vue.js, and modern web technologies.**
