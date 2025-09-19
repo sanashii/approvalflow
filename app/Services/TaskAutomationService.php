@@ -46,13 +46,17 @@ class TaskAutomationService
     {
         $cutoffDate = Carbon::now()->subDays(3);
         
+        // First, clear all existing overdue flags
+        Task::where('is_overdue', true)->update(['is_overdue' => false]);
+        
+        // Then flag overdue high priority tasks
         $tasks = Task::where('status', 'Pending')
             ->where('priority', 'High')
             ->where('created_at', '<', $cutoffDate)
             ->get();
 
         foreach ($tasks as $task) {
-            // In a real application, this might send notifications, create alerts, etc.
+            $task->update(['is_overdue' => true]);
             Log::warning("High priority task overdue: {$task->title} (ID: {$task->id}) - Created: {$task->created_at}");
         }
 

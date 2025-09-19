@@ -11,6 +11,7 @@ interface Task {
     description: string | null;
     priority: 'Low' | 'Normal' | 'High';
     status: 'Pending' | 'In Progress' | 'Completed';
+    is_overdue: boolean;
     created_at: string;
     updated_at: string;
 }
@@ -20,6 +21,7 @@ interface TaskStats {
     pending: number;
     in_progress: number;
     completed: number;
+    overdue: number;
 }
 
 interface Props {
@@ -47,6 +49,22 @@ defineProps<Props>();
                 <!-- Welcome Section -->
                 <div class="mt-4">
                     <p class="text-gray-600">Here's what's happening with your tasks today.</p>
+                </div>
+
+                <!-- Overdue Alert Banner -->
+                <div v-if="taskStats.overdue > 0" class="mb-6 bg-gradient-to-r from-red-500 to-red-600 rounded-2xl p-6 text-white shadow-lg animate-pulse">
+                    <div class="flex items-center">
+                        <svg class="w-8 h-8 mr-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div>
+                            <h3 class="text-lg font-bold">{{ taskStats.overdue }} Overdue Task{{ taskStats.overdue > 1 ? 's' : '' }}</h3>
+                            <p class="text-red-100">High priority tasks need immediate attention</p>
+                        </div>
+                        <Link :href="route('tasks.index')" class="ml-auto bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg font-semibold transition-all">
+                            View Tasks
+                        </Link>
+                    </div>
                 </div>
 
                 <!-- Task Statistics (Flexbox 2x2) -->
@@ -103,6 +121,21 @@ defineProps<Props>();
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Overdue Tasks Card -->
+                    <div class="w-full sm:w-[calc(50%-12px)] bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-600 mb-1">Overdue</p>
+                                <p class="text-3xl font-bold text-red-600">{{ taskStats.overdue }}</p>
+                            </div>
+                            <div class="h-12 w-12 bg-gradient-to-r from-red-500 to-red-600 rounded-xl flex items-center justify-center">
+                                <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Recent Tasks -->
@@ -141,7 +174,15 @@ defineProps<Props>();
                                 >
                                     <div class="flex items-start justify-between">
                                         <div class="flex-1 min-w-0">
-                                            <h4 class="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{{ task.title }}</h4>
+                                            <div class="flex items-center space-x-2 mb-1">
+                                                <h4 class="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{{ task.title }}</h4>
+                                                <span v-if="task.is_overdue" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200 animate-pulse">
+                                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                                    </svg>
+                                                    OVERDUE
+                                                </span>
+                                            </div>
                                             <p v-if="task.description" class="text-sm text-gray-600 mt-1 line-clamp-2">{{ task.description }}</p>
                                             <div class="flex items-center mt-3 space-x-3">
                                                 <span

@@ -25,6 +25,7 @@ Route::get('/dashboard', function () {
         'pending' => $user->tasks()->where('status', 'Pending')->count(),
         'in_progress' => $user->tasks()->where('status', 'In Progress')->count(),
         'completed' => $user->tasks()->where('status', 'Completed')->count(),
+        'overdue' => $user->tasks()->where('is_overdue', true)->count(),
     ];
     
     $recentTasks = $user->tasks()->orderBy('created_at', 'desc')->limit(5)->get();

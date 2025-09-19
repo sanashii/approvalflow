@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import DangerButton from '@/Components/DangerButton.vue';
 import TextInput from '@/Components/TextInput.vue';
@@ -15,6 +15,7 @@ interface Task {
     description: string | null;
     priority: 'Low' | 'Normal' | 'High';
     status: 'Pending' | 'In Progress' | 'Completed';
+    is_overdue: boolean;
     created_at: string;
     updated_at: string;
 }
@@ -28,6 +29,8 @@ const props = defineProps<Props>();
 const showCreateForm = ref(false);
 const editingTask = ref<Task | null>(null);
 const showAutomationModal = ref(false);
+const sortBy = ref('created_at');
+const sortOrder = ref('desc');
 const automationStats = ref<{
     total_tasks: number;
     completed_tasks: number;
@@ -54,6 +57,7 @@ const editForm = useForm({
 
 const submitCreate = () => {
     createForm.post(route('tasks.store'), {
+        preserveScroll: true,
         onSuccess: () => {
             createForm.reset();
             showCreateForm.value = false;
@@ -64,6 +68,7 @@ const submitCreate = () => {
 const submitEdit = () => {
     if (editingTask.value) {
         editForm.patch(route('tasks.update', editingTask.value.id), {
+            preserveScroll: true,
             onSuccess: () => {
                 editForm.reset();
                 editingTask.value = null;
@@ -87,12 +92,16 @@ const cancelEdit = () => {
 
 const deleteTask = (taskId: number) => {
     if (confirm('Are you sure you want to delete this task?')) {
-        useForm({}).delete(route('tasks.destroy', taskId));
+        useForm({}).delete(route('tasks.destroy', taskId), {
+            preserveScroll: true,
+        });
     }
 };
 
 const updateStatus = (taskId: number, status: 'Pending' | 'In Progress' | 'Completed') => {
-    useForm({ status }).patch(route('tasks.updateStatus', taskId));
+    useForm({ status }).patch(route('tasks.updateStatus', taskId), {
+        preserveScroll: true,
+    });
 };
 
 const getPriorityColor = (priority: string) => {
@@ -142,6 +151,57 @@ const runAutomation = () => {
 const closeAutomationModal = () => {
     showAutomationModal.value = false;
     automationStats.value = null;
+};
+
+// Computed property for sorted tasks
+const sortedTasks = computed(() => {
+    const tasks = [...props.tasks];
+    
+    return tasks.sort((a, b) => {
+        let aValue: any, bValue: any;
+        
+        switch (sortBy.value) {
+            case 'priority':
+                const priorityOrder = { 'High': 3, 'Normal': 2, 'Low': 1 };
+                aValue = priorityOrder[a.priority];
+                bValue = priorityOrder[b.priority];
+                break;
+            case 'status':
+                const statusOrder = { 'Pending': 1, 'In Progress': 2, 'Completed': 3 };
+                aValue = statusOrder[a.status];
+                bValue = statusOrder[b.status];
+                break;
+            case 'created_at':
+                aValue = new Date(a.created_at).getTime();
+                bValue = new Date(b.created_at).getTime();
+                break;
+            case 'updated_at':
+                aValue = new Date(a.updated_at).getTime();
+                bValue = new Date(b.updated_at).getTime();
+                break;
+            case 'title':
+                aValue = a.title.toLowerCase();
+                bValue = b.title.toLowerCase();
+                break;
+            default:
+                return 0;
+        }
+        
+        if (sortOrder.value === 'asc') {
+            return aValue > bValue ? 1 : -1;
+        } else {
+            return aValue < bValue ? 1 : -1;
+        }
+    });
+});
+
+const updateSort = (field: string) => {
+    if (sortBy.value === field) {
+        sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+    } else {
+        sortBy.value = field;
+        sortOrder.value = 'desc';
+    }
 };
 </script>
 
@@ -280,8 +340,74 @@ const closeAutomationModal = () => {
                 <!-- Tasks List -->
                 <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden mt-6">
                     <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200 mt-4">
-                        <h3 class="text-xl font-bold text-gray-900">Your Tasks</h3>
-                        <p class="text-gray-600 mt-1">Manage and track your workflow</p>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900">Your Tasks</h3>
+                                <p class="text-gray-600 mt-1">Manage and track your workflow</p>
+                            </div>
+                            <!-- Sort Controls -->
+                            <div class="flex items-center space-x-4">
+                                <span class="text-sm font-medium text-gray-700">Sort by:</span>
+                                <div class="flex space-x-2">
+                                    <button
+                                        @click="updateSort('priority')"
+                                        :class="[
+                                            'px-3 py-1 text-xs font-medium rounded-lg transition-all',
+                                            sortBy === 'priority' 
+                                                ? 'bg-blue-100 text-blue-800 border border-blue-200' 
+                                                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                                        ]"
+                                    >
+                                        Priority
+                                        <svg v-if="sortBy === 'priority'" :class="['w-3 h-3 ml-1 inline', sortOrder === 'asc' ? 'transform rotate-180' : '']" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </button>
+                                    <button
+                                        @click="updateSort('status')"
+                                        :class="[
+                                            'px-3 py-1 text-xs font-medium rounded-lg transition-all',
+                                            sortBy === 'status' 
+                                                ? 'bg-blue-100 text-blue-800 border border-blue-200' 
+                                                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                                        ]"
+                                    >
+                                        Status
+                                        <svg v-if="sortBy === 'status'" :class="['w-3 h-3 ml-1 inline', sortOrder === 'asc' ? 'transform rotate-180' : '']" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </button>
+                                    <button
+                                        @click="updateSort('created_at')"
+                                        :class="[
+                                            'px-3 py-1 text-xs font-medium rounded-lg transition-all',
+                                            sortBy === 'created_at' 
+                                                ? 'bg-blue-100 text-blue-800 border border-blue-200' 
+                                                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                                        ]"
+                                    >
+                                        Date Created
+                                        <svg v-if="sortBy === 'created_at'" :class="['w-3 h-3 ml-1 inline', sortOrder === 'asc' ? 'transform rotate-180' : '']" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </button>
+                                    <button
+                                        @click="updateSort('title')"
+                                        :class="[
+                                            'px-3 py-1 text-xs font-medium rounded-lg transition-all',
+                                            sortBy === 'title' 
+                                                ? 'bg-blue-100 text-blue-800 border border-blue-200' 
+                                                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                                        ]"
+                                    >
+                                        Title
+                                        <svg v-if="sortBy === 'title'" :class="['w-3 h-3 ml-1 inline', sortOrder === 'asc' ? 'transform rotate-180' : '']" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="p-6">
                         <div v-if="tasks.length === 0" class="text-center py-12">
@@ -295,9 +421,14 @@ const closeAutomationModal = () => {
                         </div>
                         <div v-else class="space-y-6">
                             <div
-                                v-for="task in tasks"
+                                v-for="task in sortedTasks"
                                 :key="task.id"
-                                class="group bg-white border border-gray-200 rounded-2xl p-6 hover:border-gray-300 hover:shadow-lg transition-all duration-300"
+                                :class="[
+                                    'group bg-white border rounded-2xl p-6 hover:shadow-lg transition-all duration-300',
+                                    task.is_overdue 
+                                        ? 'border-red-300 bg-red-50/30 hover:border-red-400 shadow-red-100' 
+                                        : 'border-gray-200 hover:border-gray-300'
+                                ]"
                             >
                                 <div v-if="editingTask?.id === task.id" class="space-y-4">
                                     <!-- Edit Form -->
@@ -374,7 +505,15 @@ const closeAutomationModal = () => {
                                     <!-- Task Display -->
                                     <div class="flex items-start justify-between">
                                         <div class="flex-1 min-w-0">
-                                            <h4 class="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors mb-2">{{ task.title }}</h4>
+                                            <div class="flex items-center space-x-3 mb-2">
+                                                <h4 class="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{{ task.title }}</h4>
+                                                <span v-if="task.is_overdue" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200 animate-pulse">
+                                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                                    </svg>
+                                                    OVERDUE
+                                                </span>
+                                            </div>
                                             <p v-if="task.description" class="text-gray-600 mb-4 line-clamp-2">{{ task.description }}</p>
                                             <div class="flex items-center space-x-4">
                                                 <span
